@@ -10,6 +10,7 @@ import {
 import { BookService } from './book.service';
 import { ApiTags } from '@nestjs/swagger';
 import {
+  BookResponseDto,
   CreateBookDto,
   CreateBookResponseDto,
   UpdateBookDto,
@@ -23,25 +24,21 @@ export class BookController {
   @Get()
   async getAllBooks() {
     const data = this.bookService.getAllBooks();
-    return {
-      status: 200,
-      data,
-    };
+    return data;
   }
 
   @Get(':id')
-  async getBookById(@Param('id') id: number) {
+  async getBookById(@Param('id') id: number): Promise<BookResponseDto> {
     const data = this.bookService.getBookById(id);
-    return {
-      data,
-    };
+    return data;
   }
 
   @Post()
   async createBook(
     @Body() data: CreateBookDto,
   ): Promise<CreateBookResponseDto> {
-    const newData = await this.bookService.createBook(data);
+    const Data = await this.bookService.createBook(data);
+    const { id, ...newData } = Data;
     return newData;
   }
 

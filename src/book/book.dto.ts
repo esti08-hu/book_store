@@ -37,6 +37,20 @@ export class CreateBookResponseDto {
   publishedYear: string;
 }
 
+export class BookResponseDto {
+  @IsString()
+  title: string;
+
+  @IsString()
+  author: string;
+
+  @IsString()
+  isbn: string;
+
+  @IsString()
+  publishedYear: string;
+}
+
 export class UpdateBookDto {
   @ApiProperty({ example: 'Title' })
   @IsString()

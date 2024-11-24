@@ -7,15 +7,19 @@ import { CreateBookDto, UpdateBookDto } from './book.dto';
 @Injectable()
 export class BookService {
   async getAllBooks() {
-    return db.select().from(books);
+    const allBooks = await db.select().from(books);
+    const data = allBooks.map(({ id, ...data }) => data);
+    return data;
   }
 
-  async getBookById(id: number) {
-    const book = await this.bookExist(id);
+  async getBookById(Id: number) {
+    const book = await this.bookExist(Id);
     if (!book) {
-      throw new NotFoundException('Book not found');
+      throw new NotFoundException(`Book with ID ${Id} not found.`);
     }
-    return book;
+    const { id, ...data } = book[0];
+
+    return data;
   }
 
   async createBook(data: CreateBookDto) {
@@ -26,7 +30,7 @@ export class BookService {
   async updateBook(id: number, data: UpdateBookDto) {
     const book = await this.bookExist(id);
     if (!book) {
-      throw new NotFoundException('Book not found');
+      throw new NotFoundException(`Book with ID ${id} not found.`);
     }
     return db.update(books).set(data).where(eq(books.id, id));
   }
@@ -34,7 +38,7 @@ export class BookService {
   async deleteBook(id: number) {
     const book = await this.bookExist(id);
     if (!book) {
-      throw new NotFoundException('Book not found');
+      throw new NotFoundException(`Book with ID ${id} not found.`);
     }
     return db.delete(books).where(eq(books.id, id));
   }
