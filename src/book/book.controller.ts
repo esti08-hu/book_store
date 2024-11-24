@@ -55,7 +55,7 @@ export class BookController {
     return newData;
   }
 
-  @Put('removeFav/:id')
+  @Delete('removeFav/:id')
   async removeFromFavorite(@Param('id') id: number) {
     return this.bookService.removeFromFavorite(id);
   }

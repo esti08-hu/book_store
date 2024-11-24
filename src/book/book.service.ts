@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { books } from 'src/database/schema';
 import { db } from '../database/db';
 import { eq } from 'drizzle-orm';
@@ -26,8 +30,18 @@ export class BookService {
   }
 
   async createBook(data: CreateBookDto) {
-    const newBook = db.insert(books).values(data);
-    return newBook;
+    const bookExist = await db
+      .select()
+      .from(books)
+      .where(eq(books.isbn, data.isbn));
+
+    if (bookExist) {
+      throw new BadRequestException(
+        `Book with ${bookExist[0].isbn} ISBN already exists.`,
+      );
+    }
+    const newBook = await db.insert(books).values(data).returning();
+    return newBook[0];
   }
 
   async updateBook(bookId: number, data: UpdateBookDto) {
@@ -50,7 +64,8 @@ export class BookService {
     if (!book) {
       throw new NotFoundException(`Book with ID ${id} not found.`);
     }
-    return db.delete(books).where(eq(books.id, id));
+    const data = await db.delete(books).where(eq(books.id, id)).returning();
+    return data[0];
   }
 
   async markAsFavorite(bookId: number) {
