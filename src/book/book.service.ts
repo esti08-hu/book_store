@@ -35,9 +35,9 @@ export class BookService {
       .from(books)
       .where(eq(books.isbn, data.isbn));
 
-    if (bookExist) {
+    if (bookExist[0]) {
       throw new BadRequestException(
-        `Book with ${bookExist[0].isbn} ISBN already exists.`,
+        `Book with ${data.isbn} ISBN already exists.`,
       );
     }
     const newBook = await db.insert(books).values(data).returning();
