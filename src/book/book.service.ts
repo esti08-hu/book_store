@@ -43,6 +43,22 @@ export class BookService {
     return db.delete(books).where(eq(books.id, id));
   }
 
+  async markAsFavorite(bookId: number) {
+    const favBook = await db
+      .update(books)
+      .set({ isFavorite: true })
+      .where(eq(books.id, bookId))
+      .returning();
+
+    const { id, ...data } = favBook[0];
+    return data;
+  }
+
+  async getRecommendations() {
+    const allBooks = await db.select().from(books);
+    return allBooks[Math.floor(Math.random() * allBooks.length)];
+  }
+
   private async bookExist(id: number) {
     return db.select().from(books).where(eq(books.id, id));
   }

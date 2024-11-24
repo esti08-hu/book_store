@@ -1,5 +1,5 @@
 {
-  "id": "d71349db-2e1b-4708-aab1-8b32cb75071d",
+  "id": "da0695cd-4e58-4dda-86af-798ba2fa2724",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -13,6 +13,13 @@
           "type": "serial",
           "primaryKey": true,
           "notNull": true
+        },
+        "is_favorite": {
+          "name": "is_favorite",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "title": {
           "name": "title",
@@ -37,13 +44,6 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
-        },
-        "is_favorite": {
-          "name": "is_favorite",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
         }
       },
       "indexes": {},
