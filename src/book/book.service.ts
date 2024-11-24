@@ -3,6 +3,7 @@ import { books } from 'src/database/schema';
 import { db } from '../database/db';
 import { eq } from 'drizzle-orm';
 import { CreateBookDto, UpdateBookDto } from './book.dto';
+import { da } from '@faker-js/faker/.';
 
 @Injectable()
 export class BookService {
@@ -27,12 +28,19 @@ export class BookService {
     return newBook;
   }
 
-  async updateBook(id: number, data: UpdateBookDto) {
-    const book = await this.bookExist(id);
+  async updateBook(bookId: number, data: UpdateBookDto) {
+    const book = await this.bookExist(bookId);
     if (!book) {
-      throw new NotFoundException(`Book with ID ${id} not found.`);
+      throw new NotFoundException(`Book with ID ${bookId} not found.`);
     }
-    return db.update(books).set(data).where(eq(books.id, id));
+    const updateBook = await db
+      .update(books)
+      .set(data)
+      .where(eq(books.id, bookId))
+      .returning();
+
+    const { id, ...bookData } = updateBook[0];
+    return bookData;
   }
 
   async deleteBook(id: number) {
@@ -57,6 +65,35 @@ export class BookService {
   async getRecommendations() {
     const allBooks = await db.select().from(books);
     return allBooks[Math.floor(Math.random() * allBooks.length)];
+  }
+
+  async getFavoriteBooks() {
+    const favBooks = await db
+      .select()
+      .from(books)
+      .where(eq(books.isFavorite, true));
+
+    if (!favBooks) {
+      throw new NotFoundException('No favorite books found.');
+    }
+    const data = favBooks.map(({ id, ...data }) => data);
+    return data;
+  }
+
+  async removeFromFavorite(bookId: number) {
+    const book = await this.bookExist(bookId);
+    if (!book) {
+      throw new NotFoundException(`Book with ID ${bookId} not found.`);
+    }
+
+    const updatedBook = await db
+      .update(books)
+      .set({ isFavorite: false })
+      .where(eq(books.id, bookId))
+      .returning();
+
+    const { id, ...data } = updatedBook[0];
+    return data;
   }
 
   private async bookExist(id: number) {

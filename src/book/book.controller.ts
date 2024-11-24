@@ -34,6 +34,12 @@ export class BookController {
     return book;
   }
 
+  @Get('favorite')
+  async getFavoriteBooks() {
+    const favBooks = await this.bookService.getFavoriteBooks();
+    return favBooks;
+  }
+
   @Get(':id')
   async getBookById(@Param('id') id: number): Promise<BookResponseDto> {
     const data = this.bookService.getBookById(id);
@@ -47,6 +53,11 @@ export class BookController {
     const Data = await this.bookService.createBook(data);
     const { id, ...newData } = Data;
     return newData;
+  }
+
+  @Put('removeFav/:id')
+  async removeFromFavorite(@Param('id') id: number) {
+    return this.bookService.removeFromFavorite(id);
   }
 
   @Put(':id')
