@@ -71,13 +71,13 @@ export class BookController {
     };
   }
 
-  @Delete(':id')
+  @Put(':id')
   async deleteBook(@Param('id') id: number) {
     const data = await this.bookService.deleteBook(id);
     return data;
   }
 
-  @Post('favorite/:id')
+  @Put('favorite/:id')
   markAsFavorite(@Param('id') id: number) {
     return this.bookService.markAsFavorite(id);
   }
