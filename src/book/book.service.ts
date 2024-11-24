@@ -3,20 +3,22 @@ import { books } from 'src/database/schema';
 import { db } from '../database/db';
 import { eq } from 'drizzle-orm';
 import { CreateBookDto, UpdateBookDto } from './book.dto';
-import { da } from '@faker-js/faker/.';
 
 @Injectable()
 export class BookService {
   async getAllBooks() {
     const allBooks = await db.select().from(books);
+    if (!allBooks) {
+      throw new NotFoundException('No books found.');
+    }
     const data = allBooks.map(({ id, ...data }) => data);
     return data;
   }
 
-  async getBookById(Id: number) {
-    const book = await this.bookExist(Id);
+  async getBookById(bookId: number) {
+    const book = await this.bookExist(bookId);
     if (!book) {
-      throw new NotFoundException(`Book with ID ${Id} not found.`);
+      throw new NotFoundException(`Book with ID ${bookId} not found.`);
     }
     const { id, ...data } = book[0];
 
