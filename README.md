@@ -37,7 +37,7 @@ cd book-store-api
 ### 2. Install dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 3. Configure environment variables
@@ -67,19 +67,19 @@ POSTGRES_DB=your_postgres_db
 1. **Migrate the database:**
 
    ```bash
-   npm run migrate
+   pnpm run migrate
    ```
 
 2. **Seed the database:**
 
    ```bash
-   npm run seed
+   pnpm run seed
    ```
 
 3. **Start the development server:**
 
    ```bash
-   npm run start:dev
+   pnpm run start:dev
    ```
 
 The API will be available at `http://localhost:3000`.
@@ -93,11 +93,11 @@ The API will be available at `http://localhost:3000`.
 3. Connect your GitHub repository.
 4. Set the **Build Command** to:
    ```bash
-   npm install && npm run build
+   pnpm install && pnpm run build
    ```
 5. Set the **Start Command** to:
    ```bash
-   npm run start:prod
+   pnpm run start:prod
    ```
 6. Add the required environment variables in the **Environment** section of Render.
 7. Deploy your app! 🎉
