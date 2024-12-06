@@ -2,7 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { db } from '../database/db';
 import { users } from 'src/database/schema';
-import { SignupDto } from 'src/auth/auth.dto';
 import { eq } from 'drizzle-orm';
 import { UserResponseDto } from './user.dto';
 
