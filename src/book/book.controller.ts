@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -16,11 +17,14 @@ import {
   UpdateBookDto,
   UpdateBookResponseDto,
 } from './book.dto';
+import { RoleGuard } from 'src/auth/role.guard';
+import { Public } from 'src/auth/auth.decorators';
 
 @Controller('book')
 @ApiTags('book')
 export class BookController {
   constructor(private readonly bookService: BookService) {}
+  @UseGuards(new RoleGuard(['admin']))
   @Get()
   async getAllBooks() {
     const data = this.bookService.getAllBooks();

@@ -8,6 +8,20 @@
       "when": 1732449128539,
       "tag": "0000_whole_jean_grey",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1733402410584,
+      "tag": "0001_green_madripoor",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1733430283477,
+      "tag": "0002_chunky_orphan",
+      "breakpoints": true
     }
   ]
 }
