@@ -27,7 +27,6 @@ export class BookController {
   @UseGuards(new RoleGuard(['admin']))
   @Get()
   async getAllBooks() {
-    console.log("object");
     const data = this.bookService.getAllBooks();
     return data;
   }
@@ -40,6 +39,7 @@ export class BookController {
   }
 
   @Get('favorite')
+  @UseGuards(new RoleGuard(['user']))
   async getFavoriteBooks() {
     const favBooks = await this.bookService.getFavoriteBooks();
     return favBooks;
@@ -52,6 +52,7 @@ export class BookController {
   }
 
   @Post()
+  @UseGuards(new RoleGuard(['user']))
   async createBook(
     @Body() data: CreateBookDto,
   ): Promise<CreateBookResponseDto> {
