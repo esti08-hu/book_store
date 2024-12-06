@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { LoginDto, SignupDto } from './auth.dto';
-import { users } from 'src/database/schema';
+import { admins, users } from 'src/database/schema';
 import { db } from 'src/database/db';
 import { eq } from 'drizzle-orm';
 import { Role } from './permissions.enums';
@@ -15,11 +15,7 @@ export class AuthService {
     return bcrypt.hash(password, 10);
   }
 
-  async validateUser(
-    password: string,
-    hashedPassword: string,
-  ): Promise<boolean> {
-    console.log(password, hashedPassword);
+  async validateUser(password: string, hashedPassword: string) {
     return await bcrypt.compare(password, hashedPassword);
   }
 
@@ -34,12 +30,14 @@ export class AuthService {
       .select()
       .from(users)
       .where(eq(users.email, data.email));
-    if (userExists.length) {
+    if (!userExists.length) {
       const [newuser] = await db
         .insert(users)
         .values({ ...data, password: hashedPassword })
         .returning();
-      return newuser;
+      const { password, id, ...userData } = newuser;
+
+      return userData;
     }
     throw new BadRequestException('User already exists');
   }
@@ -48,22 +46,59 @@ export class AuthService {
     const userExists = await db.query.users.findFirst({
       where: eq(users.email, data.email),
     });
+    if (!userExists) {
+      throw new BadRequestException('User not found');
+    }
     const isPasswordValid = await this.validateUser(
       data.password,
       userExists.password,
     );
-    console.log(userExists.password, data.password);
 
     if (!isPasswordValid) {
       throw new BadRequestException('Invalid password');
     }
+
     const [userRecord] = await db
       .select()
       .from(users)
       .where(eq(users.email, data.email));
     const payload = { email: userRecord.email, role: [Role.USER] };
-    const token = this.jwtService.sign(payload);
-    return { accessToken: token };
+    return {
+      token: await this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_SECRET,
+        expiresIn: '1d',
+      }),
+    };
+  }
+
+  async adminLogin(data: SignupDto): Promise<any> {
+    const adminExists = await db.query.admins.findFirst({
+      where: eq(admins.email, data.email),
+    });
+    if (!adminExists) {
+      throw new BadRequestException('User not found');
+    }
+    const isPasswordValid = await this.validateUser(
+      data.password,
+      adminExists.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid password');
+    }
+
+    const [adminRecord] = await db
+      .select()
+      .from(admins)
+      .where(eq(admins.email, data.email));
+
+    const payload = { email: adminRecord.email, role: [Role.ADMIN] };
+    return {
+      token: await this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_SECRET,
+        expiresIn: '1d',
+      }),
+    };
   }
 
   async logout(data: LoginDto): Promise<any> {

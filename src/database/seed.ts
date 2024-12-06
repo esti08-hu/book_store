@@ -58,21 +58,21 @@ const main = async () => {
   console.log('Users seeding completed!');
 
   // Generate admin data
-  const adminData = [];
-  console.log('Seeding admins...');
-  for (let i = 0; i < 10; i++) {
-    adminData.push({
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-      role: 'ADMIN', // Default role for admins
-    });
-  }
+  // const adminData = [];
+  // console.log('Seeding admins...');
+  // for (let i = 0; i < 10; i++) {
+  //   adminData.push({
+  //     name: faker.person.fullName(),
+  //     email: faker.internet.email(),
+  //     password: faker.internet.password(),
+  //     role: 'ADMIN', // Default role for admins
+  //   });
+  // }
 
-  // Insert admin data into the database
-  await db.insert(admins).values(adminData).returning();
+  // // Insert admin data into the database
+  // await db.insert(admins).values(adminData).returning();
 
-  console.log('Admins seeding completed!');
+  // console.log('Admins seeding completed!');
 
   process.exit(0);
 };

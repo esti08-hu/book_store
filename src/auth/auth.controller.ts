@@ -21,11 +21,16 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginDto: LoginDto): Promise<{ accessToken: string }> {
-   return this.authService.userLogin(loginDto);
-}
+    return this.authService.userLogin(loginDto);
+  }
 
-@Post('logout')
-async logout(@Body() loginDto: LoginDto): Promise<{ accessToken: string }> {
-  return this.authService.logout(loginDto);
-}
+  @Post('admin_login')
+  async adminLogin(@Body() loginDto: LoginDto): Promise<{ accessToken: string }> {
+    return this.authService.adminLogin(loginDto);
+  }
+
+  @Post('logout')
+  async logout(@Body() loginDto: LoginDto): Promise<{ accessToken: string }> {
+    return this.authService.logout(loginDto);
+  }
 }

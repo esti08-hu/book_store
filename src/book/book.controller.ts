@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BookService } from './book.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   BookResponseDto,
   CreateBookDto,
@@ -18,15 +18,16 @@ import {
   UpdateBookResponseDto,
 } from './book.dto';
 import { RoleGuard } from 'src/auth/role.guard';
-import { Public } from 'src/auth/auth.decorators';
 
 @Controller('book')
 @ApiTags('book')
+@ApiBearerAuth()
 export class BookController {
   constructor(private readonly bookService: BookService) {}
   @UseGuards(new RoleGuard(['admin']))
   @Get()
   async getAllBooks() {
+    console.log("object");
     const data = this.bookService.getAllBooks();
     return data;
   }
