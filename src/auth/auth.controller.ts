@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto, SignupDto } from './auth.dto';
+import { AdminLoginDto, LoginDto, SignupDto } from './auth.dto';
 import { UserService } from 'src/user/user.service';
 import { ApiTags } from '@nestjs/swagger';
 import { Public } from './auth.decorators';
@@ -25,8 +25,10 @@ export class AuthController {
   }
 
   @Post('admin_login')
-  async adminLogin(@Body() loginDto: LoginDto): Promise<{ accessToken: string }> {
-    return this.authService.adminLogin(loginDto);
+  async adminLogin(
+    @Body() adminLoginDto: AdminLoginDto,
+  ): Promise<{ accessToken: string }> {
+    return this.authService.adminLogin(adminLoginDto);
   }
 
   @Post('logout')

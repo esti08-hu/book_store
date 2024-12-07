@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class CreateBookDto {
   @ApiProperty({ example: 'Title' })
@@ -17,10 +17,6 @@ export class CreateBookDto {
   @ApiProperty({ example: '2021' })
   @IsString()
   publishedYear: string;
-
-  @ApiProperty({ example: true })
-  @IsBoolean()
-  isFavorite: boolean;
 }
 
 export class CreateBookResponseDto {

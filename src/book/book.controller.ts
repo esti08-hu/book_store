@@ -6,7 +6,7 @@ import {
   Param,
   Post,
   Put,
-  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -17,14 +17,15 @@ import {
   UpdateBookDto,
   UpdateBookResponseDto,
 } from './book.dto';
-import { RoleGuard } from 'src/auth/role.guard';
+import { Roles } from 'src/auth/role.decorator';
+import { Role } from 'src/auth/permissions.enums';
 
 @Controller('book')
 @ApiTags('book')
 @ApiBearerAuth()
+@Roles(Role.ADMIN)
 export class BookController {
   constructor(private readonly bookService: BookService) {}
-  @UseGuards(new RoleGuard(['admin']))
   @Get()
   async getAllBooks() {
     const data = this.bookService.getAllBooks();
@@ -39,9 +40,10 @@ export class BookController {
   }
 
   @Get('favorite')
-  @UseGuards(new RoleGuard(['user']))
-  async getFavoriteBooks() {
-    const favBooks = await this.bookService.getFavoriteBooks();
+  @Roles(Role.USER)
+  async getFavoriteBooks(@Req() req: any) {
+    const email = req.user.email;
+    const favBooks = await this.bookService.getFavoriteBooks(email);
     return favBooks;
   }
 
@@ -52,7 +54,7 @@ export class BookController {
   }
 
   @Post()
-  @UseGuards(new RoleGuard(['user']))
+  @Roles(Role.USER)
   async createBook(
     @Body() data: CreateBookDto,
   ): Promise<CreateBookResponseDto> {
@@ -61,7 +63,8 @@ export class BookController {
     return newData;
   }
 
-  @Put('removeFav/:id')
+  @Delete('removeFav/:id')
+  @Roles(Role.USER)
   async removeFromFavorite(@Param('id') id: number) {
     return this.bookService.removeFromFavorite(id);
   }
@@ -77,14 +80,16 @@ export class BookController {
     };
   }
 
+  @Post('favorite/:id')
+  @Roles(Role.USER)
+  markAsFavorite(@Param('id') bookId: number, @Req() req: any) {
+    const email = req.user.email;
+    return this.bookService.markAsFavorite(bookId, email);
+  }
+
   @Delete(':id')
   async deleteBook(@Param('id') id: number) {
     const data = await this.bookService.deleteBook(id);
     return data;
-  }
-
-  @Put('favorite/:id')
-  markAsFavorite(@Param('id') id: number) {
-    return this.bookService.markAsFavorite(id);
   }
 }

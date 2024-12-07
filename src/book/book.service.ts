@@ -3,13 +3,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { books } from 'src/database/schema';
+import { books, favoriteBooks, users } from 'src/database/schema';
 import { db } from '../database/db';
 import { eq } from 'drizzle-orm';
 import { CreateBookDto, UpdateBookDto } from './book.dto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class BookService {
+  constructor(private readonly userService: UserService) {}
   async getAllBooks() {
     const allBooks = await db.select().from(books);
     if (!allBooks) {
@@ -46,7 +48,7 @@ export class BookService {
 
   async updateBook(bookId: number, data: UpdateBookDto) {
     const book = await this.bookExist(bookId);
-    if (!book) {
+    if (!book.length) {
       throw new NotFoundException(`Book with ID ${bookId} not found.`);
     }
     const updateBook = await db
@@ -68,15 +70,31 @@ export class BookService {
     return data[0];
   }
 
-  async markAsFavorite(bookId: number) {
-    const favBook = await db
-      .update(books)
-      .set({ isFavorite: true })
-      .where(eq(books.id, bookId))
+  async markAsFavorite(bookId: number, email: string) {
+    const user = await db.select().from(users).where(eq(users.email, email));
+    const book = await this.bookExist(bookId);
+
+    if (!book.length) {
+      throw new NotFoundException(`Book with ID ${bookId} not found.`);
+    }
+
+    const isFav = await db
+      .select()
+      .from(favoriteBooks)
+      .where(eq(favoriteBooks.bookId, bookId));
+
+    if (isFav.length > 0) {
+      throw new BadRequestException('Book is already in favorite list.');
+    }
+    await db
+      .insert(favoriteBooks)
+      .values({
+        userId: user[0].id,
+        bookId,
+      })
       .returning();
 
-    const { id, ...data } = favBook[0];
-    return data;
+    return 'Book added to favorite list.';
   }
 
   async getRecommendations() {
@@ -84,36 +102,43 @@ export class BookService {
     return allBooks[Math.floor(Math.random() * allBooks.length)];
   }
 
-  async getFavoriteBooks() {
+  async getFavoriteBooks(email: string) {
+    const user = await db.select().from(users).where(eq(users.email, email));
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    const userId = user[0].id;
     const favBooks = await db
       .select()
-      .from(books)
-      .where(eq(books.isFavorite, true));
+      .from(favoriteBooks)
+      .leftJoin(books, eq(favoriteBooks.bookId, books.id))
+      .where(eq(favoriteBooks.userId, userId));
 
-    if (!favBooks) {
-      throw new NotFoundException('No favorite books found.');
-    }
-    const data = favBooks.map(({ id, ...data }) => data);
-    return data;
+    const sanitizedBooks = favBooks.map((favBook) => favBook.books);
+
+    return sanitizedBooks;
   }
 
   async removeFromFavorite(bookId: number) {
-    const book = await this.bookExist(bookId);
+    const book = await db
+      .select()
+      .from(favoriteBooks)
+      .where(eq(favoriteBooks.bookId, bookId))
+      .execute();
+
     if (!book) {
       throw new NotFoundException(`Book with ID ${bookId} not found.`);
     }
 
-    const updatedBook = await db
-      .update(books)
-      .set({ isFavorite: false })
-      .where(eq(books.id, bookId))
+    const data = await db
+      .delete(favoriteBooks)
+      .where(eq(favoriteBooks.bookId, bookId))
       .returning();
-
-    const { id, ...data } = updatedBook[0];
-    return data;
+    return data[0];
   }
 
   private async bookExist(id: number) {
-    return db.select().from(books).where(eq(books.id, id));
+    return await db.select().from(books).where(eq(books.id, id));
   }
+
 }

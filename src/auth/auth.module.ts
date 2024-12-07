@@ -27,10 +27,10 @@ import { RoleGuard } from './role.guard';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RoleGuard,
-    // },
+    {
+      provide: APP_GUARD,
+      useClass: RoleGuard,
+    },
   ],
   exports: [JwtModule],
 })

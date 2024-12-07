@@ -17,3 +17,12 @@ export class LoginDto {
   @ApiProperty({ example: '123' })
   password: string;
 }
+
+export class AdminLoginDto {
+  @ApiProperty({ example: 'admin' })
+  name: string;
+  @ApiProperty({ example: 'admin@admin.com' })
+  email: string;
+  @ApiProperty({ example: '123' })
+  password: string;
+}
