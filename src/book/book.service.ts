@@ -141,4 +141,42 @@ export class BookService {
     return await db.select().from(books).where(eq(books.id, id));
   }
 
+  async getBookByISBN(isbn: string) {
+    const book = await db
+      .select()
+      .from(books)
+      .where(eq(books.isbn, isbn))
+      .execute();
+
+    if (!book.length) {
+      throw new NotFoundException(`Book with ISBN ${isbn} not found.`);
+    }
+    return book[0];
+  }
+
+  async getBookByTitle(title: string) {
+    const book = await db
+      .select()
+      .from(books)
+      .where(eq(books.title, title))
+      .execute();
+
+    if (!book.length) {
+      throw new NotFoundException(`Book with title ${title} not found.`);
+    }
+    return book[0];
+  }
+
+  async searchByAuther(author: string) {
+    const book = await db
+      .select()
+      .from(books)
+      .where(eq(books.author, author))
+      .execute();
+
+    if (!book.length) {
+      throw new NotFoundException(`Book with author ${author} not found.`);
+    }
+    return book[0];
+  }
 }

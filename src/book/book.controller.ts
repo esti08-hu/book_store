@@ -33,6 +33,7 @@ export class BookController {
   }
 
   @Get('recommendations')
+  @Roles(Role.USER)
   async getRecommendations() {
     const recBook = await this.bookService.getRecommendations();
     const { id, ...book } = recBook;
@@ -90,6 +91,18 @@ export class BookController {
   @Delete(':id')
   async deleteBook(@Param('id') id: number) {
     const data = await this.bookService.deleteBook(id);
+    return data;
+  }
+
+  @Get('search/:title')
+  async searchByTitle(@Param('title') title: string) {
+    const data = await this.bookService.getBookByTitle(title);
+    return data;
+  }
+
+  @Get('search/author/:author')
+  async searchByAuthor(@Param('author') author: string) {
+    const data = await this.bookService.searchByAuther(author);
     return data;
   }
 }
