@@ -1,18 +1,4 @@
-import {
-  BadGatewayException,
-  BadRequestException,
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  Post,
-  Query,
-  Req,
-  Request,
-  Res,
-  Response,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Response } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AdminLoginDto, LoginDto, SignupDto } from './auth.dto';
 import { UserService } from 'src/user/user.service';
@@ -57,7 +43,7 @@ export class AuthController {
     const accessToken = await this.authService.adminLogin(adminLoginDto);
 
     res.cookie('access_token', accessToken, {
-      maxAge: 1000 * 15,
+      maxAge: 1000 * 60 * 60 * 15,
       httpOnly: true,
     });
     return accessToken;
