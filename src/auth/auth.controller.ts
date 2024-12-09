@@ -1,4 +1,18 @@
-import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
+import {
+  BadGatewayException,
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Query,
+  Req,
+  Request,
+  Res,
+  Response,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AdminLoginDto, LoginDto, SignupDto } from './auth.dto';
 import { UserService } from 'src/user/user.service';
@@ -21,21 +35,47 @@ export class AuthController {
 
   @Post('login')
   @Public()
-  async login(@Body() loginDto: LoginDto): Promise<{ accessToken: string }> {
-    return this.authService.userLogin(loginDto);
+  async login(
+    @Body() loginDto: LoginDto,
+    @Response({ passthrough: true }) res,
+  ): Promise<any> {
+    const accessToken = await this.authService.userLogin(loginDto);
+
+    res.cookie('access_token', accessToken, {
+      maxAge: 1000 * 60 * 60 * 15,
+      httpOnly: true,
+    });
+    return accessToken;
   }
 
   @Post('admin_login')
   @Public()
   async adminLogin(
     @Body() adminLoginDto: AdminLoginDto,
+    @Response({ passthrough: true }) res,
   ): Promise<{ accessToken: string }> {
-    return this.authService.adminLogin(adminLoginDto);
+    const accessToken = await this.authService.adminLogin(adminLoginDto);
+
+    res.cookie('access_token', accessToken, {
+      maxAge: 1000 * 15,
+      httpOnly: true,
+    });
+    return accessToken;
   }
 
   @Post('logout')
   @ApiBearerAuth()
-  async logout(@Body() loginDto: LoginDto): Promise<{ accessToken: string }> {
-    return this.authService.logout(loginDto);
+  logout(@Response() res) {
+    res.cookie('access_token', '', {
+      httpOnly: true,
+      maxAge: 0,
+    });
+    return res.send({ message: 'Logged out successfully' });
+  }
+
+  @Get('check-cookies')
+  @Public()
+  async checkCookies(@Req() req) {
+    return req.cookies;
   }
 }

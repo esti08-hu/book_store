@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  Request,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -25,7 +26,7 @@ export class AuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const token = this.extractTokenFromCookies(request);
     if (!token) {
       throw new UnauthorizedException();
     }
@@ -33,21 +34,15 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
+
       request['user'] = payload;
     } catch (e) {
-      // check if it is expired and throw different exception so that the client can refresh the token
       throw new UnauthorizedException();
     }
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    try {
-      const [type, token] = request.headers['authorization'].split(' ') ?? [];
-      return type === 'Bearer' ? token : undefined;
-    } catch (e) {
-      console.log(e);
-      return undefined;
-    }
+  private extractTokenFromCookies(@Request() req): string | undefined {
+    return req.cookies?.access_token?.token;
   }
 }
