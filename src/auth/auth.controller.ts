@@ -58,10 +58,4 @@ export class AuthController {
     });
     return res.send({ message: 'Logged out successfully' });
   }
-
-  @Get('check-cookies')
-  @Public()
-  async checkCookies(@Req() req) {
-    return req.cookies;
-  }
 }
